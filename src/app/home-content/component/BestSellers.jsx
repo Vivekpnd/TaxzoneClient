@@ -1,4 +1,4 @@
-import HeroBanner from "@/components/HeroBanner";
+import HeroBanner from "../../../components/HeroBanner"
 import ProductGrid from "../component/products/ProductGrid";
 import { Flame, Sparkles, TrendingUp, Star } from "lucide-react";
 

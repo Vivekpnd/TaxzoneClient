@@ -1,23 +1,30 @@
 export async function getCategoryIdBySlug(slug) {
   if (!slug) return null;
 
+  const auth = Buffer.from(
+    `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
+  ).toString("base64");
+
   const res = await fetch(
-    `${process.env.WC_API_URL}/products/categories?slug=${slug}&consumer_key=${process.env.WC_CONSUMER_KEY}&consumer_secret=${process.env.WC_CONSUMER_SECRET}`,
-    { cache: "no-store" }
+    `${process.env.WC_API_URL}/products/categories?slug=${slug}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${auth}`,
+      },
+      cache: "no-store",
+    }
   );
 
-  const text = await res.text();
-
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch (err) {
-    console.error("Category API returned non-JSON:", text.slice(0, 200));
+  if (!res.ok) {
+    console.error("WooCommerce Error:", await res.text());
     return null;
   }
 
+  const data = await res.json();
+
   if (!Array.isArray(data) || data.length === 0) {
-    console.error("Category slug not found:", slug, data);
+    console.error("Category slug not found:", slug);
     return null;
   }
 

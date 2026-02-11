@@ -29,7 +29,7 @@ export default function RegisterPage() {
       });
 
       setToken(login.token);
-      router.push("/my-account");
+      router.push("/login");
     } catch (err) {
       setError(err.message);
     }

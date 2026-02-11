@@ -1,6 +1,6 @@
 'use client';
 
-import { logout } from "@/lib/auth";
+import { logout } from "../lib/auth";
 
 export default function AccountPage() {
   return (
