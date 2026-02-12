@@ -34,7 +34,7 @@ export default function TopBar() {
 
           {/* DESKTOP */}
           <Link
-            href={loggedIn ? "/my-account" : "/login"}
+            href={loggedIn ? "/Account" : "/login"}
             className="hidden md:flex items-center gap-1 hover:text-white transition"
           >
             <User size={14} />

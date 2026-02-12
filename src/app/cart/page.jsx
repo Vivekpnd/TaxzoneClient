@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "../../store/cartStore";
 
 export default function CartPage() {
   const items = useCartStore((state) => state.items);

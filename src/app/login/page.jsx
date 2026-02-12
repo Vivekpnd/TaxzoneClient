@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       await loginUser(form);
 
-      router.push("/account"); // keep one consistent route
+      router.push("/Account"); // keep one consistent route
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
     } finally {

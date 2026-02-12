@@ -15,26 +15,43 @@ export default function PlaceOrderButton({ customer }) {
       return;
     }
 
+    // 🚨 MUST be WooCommerce WordPress user ID
+    if (!customer || !customer.id) {
+      alert("User not logged in properly");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const res = await fetch("/api/woocommerce/checkout", {
+      console.log("Placing order for Woo user ID:", customer.id);
+
+      const response = await fetch("/api/woocommerce/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          customer,
-          items,
+          customer_id: parseInt(customer.id), // ensure number
+          items: items.map((item) => ({
+            id: Number(item.id),
+            qty: Number(item.qty),
+          })),
         }),
       });
 
-      const text = await res.text();
+      const data = await response.json();
 
-      if (!res.ok) throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error(data.error || "Checkout failed");
+      }
 
       clearCart();
-      router.push(`/order-success?order=${data.orderId}`);
-    } catch (err) {
-      alert(err.message || "Checkout failed");
+
+      router.push(`/order-success?order=${data.id}`);
+    } catch (error) {
+      console.error("Checkout Error:", error);
+      alert(error.message || "Checkout failed");
     } finally {
       setLoading(false);
     }
@@ -44,7 +61,7 @@ export default function PlaceOrderButton({ customer }) {
     <button
       onClick={placeOrder}
       disabled={loading}
-      className="w-full bg-black text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition"
+      className="w-full bg-black text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition disabled:opacity-50"
     >
       {loading ? "Placing order…" : "Place Order"}
     </button>

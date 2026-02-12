@@ -1,104 +1,87 @@
 import { NextResponse } from "next/server";
 
-async function safeJson(res) {
-  const contentType = res.headers.get("content-type") || "";
+const WC_API = process.env.WC_API_URL; 
+// example: https://taxzone.store/wp-json/wc/v3
 
-  if (!contentType.includes("application/json")) {
-    const text = await res.text();
-    console.error("WC order API returned non-JSON:", text.slice(0, 200));
-    return null;
-  }
-
-  return res.json();
-}
+const CONSUMER_KEY = process.env.WC_CONSUMER_KEY;
+const CONSUMER_SECRET = process.env.WC_CONSUMER_SECRET;
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { customer, items } = body;
 
-    if (
-      !customer ||
-      !customer.firstName ||
-      !customer.email ||
-      !customer.phone ||
-      !customer.address ||
-      !items ||
-      !items.length
-    ) {
+    const { cartItems, billing, token } = body;
+
+    // 🔒 Check login
+    if (!token) {
       return NextResponse.json(
-        { error: "Invalid checkout data" },
+        { message: "Please login first" },
+        { status: 401 }
+      );
+    }
+
+    // 🛒 Validate cart
+    if (!cartItems || cartItems.length === 0) {
+      return NextResponse.json(
+        { message: "Cart is empty" },
         { status: 400 }
       );
     }
 
-    const orderPayload = {
-      payment_method: "cod",
-      payment_method_title: "Cash on Delivery",
-      set_paid: false,
+    // 🧾 Validate billing
+    if (!billing?.first_name || !billing?.email) {
+      return NextResponse.json(
+        { message: "Billing details missing" },
+        { status: 400 }
+      );
+    }
 
-      billing: {
-        first_name: customer.firstName,
-        last_name: customer.lastName || "",
-        address_1: customer.address,
-        city: customer.city || "",
-        state: customer.state || "",
-        postcode: customer.pincode || "",
-        country: "IN",
-        email: customer.email,
-        phone: customer.phone,
-      },
+    // 🔄 Format line items for WooCommerce
+    const line_items = cartItems.map((item) => ({
+      product_id: item.id,
+      quantity: item.quantity,
+    }));
 
-      shipping: {
-        first_name: customer.firstName,
-        last_name: customer.lastName || "",
-        address_1: customer.address,
-        city: customer.city || "",
-        state: customer.state || "",
-        postcode: customer.pincode || "",
-        country: "IN",
-      },
-
-      line_items: items.map((item) => ({
-        product_id: item.id,
-        quantity: item.qty,
-      })),
-    };
-
-    const auth =
-      "Basic " +
-      Buffer.from(
-        `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
-      ).toString("base64");
-
-    const res = await fetch(
-      `${process.env.WC_API_URL}/orders`,
+    // 📦 Create order in WooCommerce
+    const response = await fetch(
+      `${WC_API}/orders?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`,
       {
         method: "POST",
         headers: {
-          Authorization: auth,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(orderPayload),
+        body: JSON.stringify({
+          payment_method: "cod",
+          payment_method_title: "Cash on Delivery",
+          set_paid: false,
+          billing,
+          line_items,
+        }),
       }
     );
 
-    const data = await safeJson(res);
+    const data = await response.json();
 
-    if (!res.ok) {
+    if (!response.ok) {
+      console.error("WooCommerce Error:", data);
       return NextResponse.json(
-        { error: data?.message || "Order failed" },
-        { status: 400 }
+        { message: "Order creation failed", error: data },
+        { status: 500 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      order: data,
-    });
-  } catch (err) {
     return NextResponse.json(
-      { error: err.message },
+      {
+        success: true,
+        order_id: data.id,
+        message: "Order placed successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Checkout API Error:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
       { status: 500 }
     );
   }
