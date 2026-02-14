@@ -13,52 +13,66 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="bg-neutral-900 text-neutral-300 text-xs md:text-sm">
+    <div className="bg-gray-100 text-gray-600 text-xs md:text-sm border-b">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
 
         {/* LEFT */}
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1 hover:text-white transition">
-            <Phone size={14} />
-            +1 800 123 4567
-          </span>
+        <div className="flex items-center gap-6">
 
-          <span className="hidden md:flex items-center gap-1 hover:text-white transition">
+          <a
+            href="tel:+18001234567"
+            className="flex items-center gap-2 hover:text-orange-600 transition"
+          >
+            <Phone size={14} />
+            <span className="hidden sm:inline">+1 800 123 4567</span>
+          </a>
+
+          <a
+            href="mailto:info@taxzone.com"
+            className="hidden md:flex items-center gap-2 hover:text-orange-600 transition"
+          >
             <Mail size={14} />
-            info@autoparts.com
-          </span>
+            info@taxzone.com
+          </a>
+
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
 
           {/* DESKTOP */}
           <Link
-            href={loggedIn ? "/Account" : "/login"}
-            className="hidden md:flex items-center gap-1 hover:text-white transition"
+            href={loggedIn ? "/my-account" : "/login"}
+            className="hidden md:flex items-center gap-2 hover:text-orange-600 transition"
           >
             <User size={14} />
             My Account
           </Link>
 
-          <a className="hidden md:flex items-center gap-1 hover:text-white transition">
+          <Link
+            href="/wishlist"
+            className="hidden md:flex items-center gap-2 hover:text-orange-600 transition"
+          >
             <Heart size={14} />
             Wishlist
-          </a>
+          </Link>
 
-          {/* MOBILE */}
+          {/* MOBILE ICONS */}
           <Link
             href={loggedIn ? "/my-account" : "/login"}
-            className="md:hidden hover:scale-110 transition"
+            className="md:hidden hover:text-orange-600 transition"
           >
             <User size={18} />
           </Link>
 
-          <a className="md:hidden hover:scale-110 transition">
+          <Link
+            href="/wishlist"
+            className="md:hidden hover:text-orange-600 transition"
+          >
             <Heart size={18} />
-          </a>
-        </div>
+          </Link>
 
+        </div>
       </div>
     </div>
   );

@@ -5,10 +5,7 @@ import { X } from "lucide-react";
 
 const menu = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/shop" },
-  { label: "Engine Parts", href: "/shop?cat=engine" },
   { label: "Accessories", href: "/shop?cat=accessories" },
-  { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -16,9 +13,9 @@ export default function NavBar({ open, onClose }) {
   return (
     <>
       {/* DESKTOP */}
-      <nav className="hidden md:block bg-gradient-to-r from-red-600 to-red-500">
+      <nav className="hidden md:block bg-gradient-to-r relative z-[99999] ">
         <div className="max-w-7xl mx-auto px-4">
-          <ul className="flex gap-8 py-3 text-white font-medium">
+          <ul className="flex gap-8 py-3 text-black font-medium">
             {menu.map((item) => (
               <li key={item.label}>
                 <Link

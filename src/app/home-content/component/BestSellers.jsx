@@ -1,15 +1,20 @@
-import HeroBanner from "../../../components/HeroBanner"
+import HeroBanner from "../../../components/HeroBanner";
 import ProductGrid from "../component/products/ProductGrid";
 import { Flame, Sparkles, TrendingUp, Star } from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="space-y-20">
-      {/* BEST SELLERS */}
+    <main className="space-y-16 md:space-y-24">
+
+      {/* HERO */}
       <HeroBanner />
-      <section>
+
+      {/* BEST SELLERS */}
+      <section className="px-4 md:px-8 lg:px-12">
         <SectionHeader
-          icon={<Flame className="text-orange-500" />}
+          slug="best-seller"
+          icon={<Flame size={16} />}
           title="Best Sellers"
           subtitle="Most loved products by our customers"
         />
@@ -17,9 +22,10 @@ export default function HomePage() {
       </section>
 
       {/* NEW LAUNCH */}
-      <section>
+      <section className="px-4 md:px-8 lg:px-12">
         <SectionHeader
-          icon={<Sparkles className="text-purple-500" />}
+          slug="new-launch"
+          icon={<Sparkles size={16} />}
           title="New Launch"
           subtitle="Fresh arrivals just for you"
         />
@@ -27,9 +33,10 @@ export default function HomePage() {
       </section>
 
       {/* TRENDING */}
-      <section>
+      <section className="px-4 md:px-8 lg:px-12">
         <SectionHeader
-          icon={<TrendingUp className="text-green-500" />}
+          slug="trending-now"
+          icon={<TrendingUp size={16} />}
           title="Trending Now"
           subtitle="What everyone is buying right now"
         />
@@ -37,39 +44,66 @@ export default function HomePage() {
       </section>
 
       {/* RECOMMENDED */}
-      <section>
+      <section className="px-4 md:px-8 lg:px-12">
         <SectionHeader
-          icon={<Star className="text-yellow-500" />}
+          slug="recommended"
+          icon={<Star size={16} />}
           title="Recommended For You"
           subtitle="Handpicked based on popularity"
         />
         <ProductGrid title="Recommended For You" slug="recommended" />
       </section>
+
     </main>
   );
 }
 
 /* ---------------------------------- */
-/* MODERN SECTION HEADER COMPONENT */
+/* MODERN ECOMMERCE SECTION HEADER */
 /* ---------------------------------- */
 
-function SectionHeader({ icon, title, subtitle }) {
+function SectionHeader({ icon, title, subtitle, slug }) {
   return (
-    <div className="mb-8 px-1">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-          {icon}
+    <div className="mb-8 md:mb-10">
+
+      {/* Top Row */}
+      <div className="flex items-center justify-between mb-3">
+
+        <div className="flex items-center gap-3">
+
+          {/* Minimal Brand Icon */}
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-orange-50 text-orange-600">
+            {icon}
+          </div>
+
+          {/* Title */}
+          <h2 className="text-lg md:text-xl lg:text-2xl font-semibold tracking-tight text-gray-900">
+            {title}
+          </h2>
+
         </div>
 
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-          {title}
-        </h2>
+        {/* View All Link */}
+        <Link
+          href={`/category/${slug}`}
+          className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors duration-200"
+        >
+          View All →
+        </Link>
+
       </div>
 
+      {/* Subtitle + Divider */}
       <div className="flex items-center gap-4">
-        <p className="text-sm text-gray-500">{subtitle}</p>
-        <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent" />
+
+        <p className="text-sm text-gray-500 max-w-md leading-relaxed">
+          {subtitle}
+        </p>
+
+        <div className="flex-1 h-px bg-gray-200" />
+
       </div>
+
     </div>
   );
 }

@@ -12,19 +12,11 @@ export async function GET(req) {
       );
     }
 
-    // ✅ Use WC_API_URL directly
-    const apiUrl = `${process.env.WC_API_URL}/orders?customer=${customerId}`;
-
-    const auth = Buffer.from(
-      `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
-    ).toString("base64");
+    // ✅ Use query string authentication instead of Basic Auth
+    const apiUrl = `${process.env.WC_API_URL}/orders?customer=${customerId}&consumer_key=${process.env.WC_CONSUMER_KEY}&consumer_secret=${process.env.WC_CONSUMER_SECRET}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: {
-        Authorization: `Basic ${auth}`,
-        "Content-Type": "application/json",
-      },
       cache: "no-store",
     });
 
@@ -42,7 +34,7 @@ export async function GET(req) {
 
   } catch (error) {
     return NextResponse.json(
-      { error: "Server error", details: error.message },
+      { error: error.message },
       { status: 500 }
     );
   }

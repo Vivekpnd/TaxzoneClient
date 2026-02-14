@@ -2,18 +2,13 @@
 
 import { useCartStore } from "../../store/cartStore";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getUser, getToken } from "../lib/auth";
+import { FiShoppingCart, FiMapPin, FiCreditCard } from "react-icons/fi";
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
-  const clearCart = useCartStore((s) => s.clearCart);
   const router = useRouter();
-
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
 
   const [customer, setCustomer] = useState({
     first_name: "",
@@ -26,19 +21,15 @@ export default function CheckoutPage() {
     pincode: "",
   });
 
-  // ✅ Load logged-in user safely
   useEffect(() => {
     const loggedUser = getUser();
     const storedToken = getToken();
+
     if (!loggedUser || !storedToken) {
       router.push("/login");
       return;
     }
 
-    setUser(loggedUser);
-    setToken(storedToken);
-
-    // Prefill customer info if available
     setCustomer((prev) => ({
       ...prev,
       first_name: loggedUser.name?.split(" ")[0] || "",
@@ -49,17 +40,11 @@ export default function CheckoutPage() {
 
   if (!items || items.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto py-24 text-center">
-        <h1 className="text-2xl font-bold">Your cart is empty 🛒</h1>
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-3xl font-semibold">Your cart is empty</h1>
       </div>
     );
   }
-
-  const total = items.reduce(
-    (sum, item) =>
-      sum + Number(item.price) * Number(item.qty || item.quantity),
-    0
-  );
 
   function handleChange(e) {
     setCustomer({
@@ -68,15 +53,7 @@ export default function CheckoutPage() {
     });
   }
 
-  async function placeOrder() {
-    // 🔒 Strict login check
-    if (!user || !token) {
-      alert("Please login first");
-      router.push("/login");
-      return;
-    }
-
-    // 🧾 Validate all fields
+  function handleNext() {
     for (let key in customer) {
       if (!customer[key]) {
         alert("Please fill all required fields");
@@ -84,120 +61,108 @@ export default function CheckoutPage() {
       }
     }
 
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/woocommerce/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token, // pass token from state
-          cartItems: items.map((item) => ({
-            id: item.id,
-            quantity: item.qty || item.quantity,
-          })),
-          billing: {
-            first_name: customer.first_name,
-            last_name: customer.last_name,
-            email: customer.email,
-            phone: customer.phone,
-            address_1: customer.address,
-            city: customer.city,
-            state: customer.state,
-            postcode: customer.pincode,
-            country: "IN",
-          },
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Order failed");
-        setLoading(false);
-        return;
-      }
-
-      // ✅ Success: clear cart & redirect
-      clearCart();
-      alert("Order placed successfully!");
-      router.push("/orders");
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong. Try again!");
-    } finally {
-      setLoading(false);
-    }
+    localStorage.setItem("checkout_customer", JSON.stringify(customer));
+    router.push("/payment");
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-12 px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 bg-white border rounded-xl p-6">
-        <h2 className="text-xl font-bold mb-6">Delivery Details</h2>
+    <div className="bg-gray-50 min-h-screen py-12 px-4">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.keys(customer).map((key) => (
-            <input
-              key={key}
-              name={key}
-              placeholder={key.replace("_", " ").toUpperCase()}
-              value={customer[key]}
-              onChange={handleChange}
-              className="input"
-            />
-          ))}
+      {/* PROFESSIONAL STEPPER */}
+      <div className="max-w-4xl mx-auto mb-14">
+        <div className="flex items-center justify-between relative">
+
+          {/* Line Background */}
+          <div className="absolute top-5 left-0 w-full h-[2px] bg-gray-200"></div>
+
+          {/* Active Progress Line */}
+          <div className="absolute top-5 left-0 w-1/2 h-[2px] bg-black transition-all duration-500"></div>
+
+          {/* Step 1 */}
+          <div className="relative z-10 flex flex-col items-center w-1/3">
+            <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow">
+              <FiShoppingCart size={18} />
+            </div>
+            <span className="text-xs mt-2 font-medium">Cart</span>
+          </div>
+
+          {/* Step 2 (Active) */}
+          <div className="relative z-10 flex flex-col items-center w-1/3">
+            <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center shadow-lg scale-110 transition">
+              <FiMapPin size={20} />
+            </div>
+            <span className="text-xs mt-2 font-semibold">
+              Address
+            </span>
+          </div>
+
+          {/* Step 3 */}
+          <div className="relative z-10 flex flex-col items-center w-1/3">
+            <div className="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center">
+              <FiCreditCard size={18} />
+            </div>
+            <span className="text-xs mt-2 text-gray-400">
+              Payment
+            </span>
+          </div>
+
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-6 h-fit">
-        <h2 className="text-lg font-bold mb-4">Order Summary</h2>
+      {/* FORM CARD */}
+      <div className="max-w-4xl mx-auto bg-white border rounded-2xl p-10 shadow-sm animate-fadeIn">
 
-        {items.map((item) => (
-          <div key={item.id} className="flex gap-3 mb-4">
-            <Image
-              src={item.image || "https://via.placeholder.com/80"}
-              alt={item.name}
-              width={70}
-              height={70}
-            />
-            <div className="flex-1">
-              <p>{item.name}</p>
-              <p>Qty: {item.qty || item.quantity}</p>
+        <h2 className="text-2xl font-semibold mb-10 text-center">
+          Shipping Details
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {Object.keys(customer).map((key) => (
+            <div key={key} className="relative">
+              <input
+                name={key}
+                value={customer[key]}
+                onChange={handleChange}
+                placeholder=" "
+                className="peer w-full border border-gray-300 rounded-xl px-4 pt-6 pb-2 focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+              />
+              <label
+                className="absolute left-4 top-2 text-xs text-gray-500
+                peer-placeholder-shown:top-5
+                peer-placeholder-shown:text-sm
+                peer-placeholder-shown:text-gray-400
+                transition-all duration-200"
+              >
+                {key.replace("_", " ").toUpperCase()}
+              </label>
             </div>
-            <p>
-              ₹
-              {(
-                Number(item.price) *
-                Number(item.qty || item.quantity)
-              ).toFixed(2)}
-            </p>
-          </div>
-        ))}
+          ))}
 
-        <div className="border-t mt-4 pt-4 flex justify-between font-bold">
-          <span>Total</span>
-          <span>₹{total.toFixed(2)}</span>
         </div>
 
-        <button
-          onClick={placeOrder}
-          disabled={loading}
-          className="mt-6 w-full bg-black text-white py-3 rounded-lg"
-        >
-          {loading ? "Placing Order..." : "Place Order"}
-        </button>
+        <div className="mt-12 text-center">
+          <button
+            onClick={handleNext}
+            className="bg-black text-white px-14 py-4 rounded-xl hover:bg-gray-900 transition-all duration-200 shadow-md"
+          >
+            Continue to Payment
+          </button>
+        </div>
+
       </div>
 
       <style jsx>{`
-        .input {
-          border: 1px solid #e5e7eb;
-          padding: 12px;
-          border-radius: 8px;
-          width: 100%;
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
+
     </div>
   );
 }

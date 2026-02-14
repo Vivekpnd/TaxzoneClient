@@ -17,7 +17,6 @@ export default function Header() {
       <MainHeader onMenuClick={() => setMenuOpen(true)} />
 
       {/* NOT sticky */}
-      <NavBar open={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
   )
 }
