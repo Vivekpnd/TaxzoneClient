@@ -1,124 +1,201 @@
 "use client";
 
 import { useState } from "react";
+import { FaCheck } from "react-icons/fa";
+import clsx from "clsx";
 
 export default function TrackOrderPage() {
   const [orderId, setOrderId] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [order, setOrder] = useState(null);
   const [error, setError] = useState("");
+  const [order, setOrder] = useState(null);
 
-  const handleTrackOrder = async (e) => {
-    e.preventDefault();
+  // WooCommerce status mapping
+  const statusSteps = [
+    { key: "pending", label: "Placed" },
+    { key: "processing", label: "Packed" },
+    { key: "shipped", label: "Shipped" }, // if using custom shipped status
+    { key: "completed", label: "Delivered" },
+  ];
+
+  const handleTrack = async () => {
+    if (!orderId || !email) {
+      setError("Please enter order ID and email");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setOrder(null);
 
     try {
-      const res = await fetch("/api/track-order", {
+      const response = await fetch("/api/woocommerce/track-order", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId, email }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Order not found");
+      if (!response.ok) {
+        setError(data.message || "Order not found");
+      } else {
+        setOrder(data.order); // FULL order from WooCommerce
       }
-
-      setOrder(data);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError("Network error");
     }
 
     setLoading(false);
   };
 
+  // Dynamic status index from WooCommerce
+  const currentStatusIndex = order
+    ? statusSteps.findIndex((step) => step.key === order.status)
+    : -1;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-8">
+
+        {/* Title */}
+        <h2 className="text-3xl font-bold text-[#4B4B4B] mb-6">
           Track Your Order
-        </h1>
+        </h2>
 
-        <form onSubmit={handleTrackOrder} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Order ID
-            </label>
-            <input
-              type="text"
-              required
-              value={orderId}
-              onChange={(e) => setOrderId(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder="e.g. 1234"
-            />
-          </div>
+        {/* Input Section */}
+        {!order && (
+          <>
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <input
+                type="text"
+                placeholder="Order ID"
+                value={orderId}
+                onChange={(e) => setOrderId(e.target.value)}
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#F26522] outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Billing Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#F26522] outline-none"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Billing Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium transition ${
-              loading
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-black text-white hover:bg-gray-800"
-            }`}
-          >
-            {loading ? "Checking..." : "Track Order"}
-          </button>
-        </form>
-
-        {error && (
-          <div className="mt-6 text-red-500 text-sm text-center">
-            {error}
-          </div>
+            <button
+              onClick={handleTrack}
+              className="w-full bg-[#F26522] hover:bg-[#d3541c] text-white py-3 rounded-lg font-semibold transition"
+            >
+              {loading ? "Tracking..." : "Track Order"}
+            </button>
+          </>
         )}
 
+        {error && (
+          <p className="text-red-500 mt-4 font-medium">{error}</p>
+        )}
+
+        {/* ORDER DETAILS */}
         {order && (
-          <div className="mt-8 bg-gray-100 rounded-xl p-6 space-y-3">
-            <h2 className="text-lg font-semibold">
-              Order #{order.id}
-            </h2>
+          <div className="mt-8">
 
-            <div className="flex justify-between text-sm">
-              <span>Status:</span>
-              <span className="font-medium capitalize">
-                {order.status}
-              </span>
+            {/* Order Info */}
+            <div className="mb-8">
+              <p className="text-gray-700">
+                <span className="font-semibold">Order Code:</span> #{order.id}
+              </p>
+              <p className="text-gray-700">
+                <span className="font-semibold">Total:</span> {order.total} {order.currency}
+              </p>
+              <p className="text-gray-700">
+                <span className="font-semibold">Status:</span>{" "}
+                <span className="text-[#F26522] capitalize font-semibold">
+                  {order.status}
+                </span>
+              </p>
             </div>
 
-            <div className="flex justify-between text-sm">
-              <span>Total:</span>
-              <span>₹ {order.total}</span>
+            {/* Progress Bar */}
+            <div className="relative flex justify-between items-center mb-10">
+
+              {/* Background Line */}
+              <div className="absolute top-5 left-0 w-full h-1 bg-gray-200"></div>
+
+              {/* Active Line */}
+              {currentStatusIndex >= 0 && (
+                <div
+                  className="absolute top-5 left-0 h-1 bg-[#F26522] transition-all duration-500"
+                  style={{
+                    width: `${(currentStatusIndex / (statusSteps.length - 1)) * 100}%`,
+                  }}
+                />
+              )}
+
+              {statusSteps.map((step, index) => {
+                const isActive = index <= currentStatusIndex;
+
+                return (
+                  <div
+                    key={step.key}
+                    className="relative z-10 flex flex-col items-center w-full"
+                  >
+                    <div
+                      className={clsx(
+                        "w-10 h-10 rounded-full flex items-center justify-center border-2",
+                        isActive
+                          ? "bg-[#F26522] border-[#F26522] text-white"
+                          : "bg-white border-gray-300 text-gray-400"
+                      )}
+                    >
+                      {isActive && <FaCheck size={14} />}
+                    </div>
+
+                    <span
+                      className={clsx(
+                        "mt-2 text-sm font-medium",
+                        isActive ? "text-[#4B4B4B]" : "text-gray-400"
+                      )}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="flex justify-between text-sm">
-              <span>Date:</span>
-              <span>
-                {order.date_created
-                  ? new Date(order.date_created).toLocaleDateString()
-                  : "-"}
-              </span>
+            {/* Products Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 text-left text-[#4B4B4B]">
+                    <th className="p-3">Product</th>
+                    <th className="p-3">Qty</th>
+                    <th className="p-3">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.line_items.map((item) => (
+                    <tr key={item.id} className="border-t">
+                      <td className="p-3">{item.name}</td>
+                      <td className="p-3">{item.quantity}</td>
+                      <td className="p-3">
+                        {item.total} {order.currency}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+
+            {/* Back Button */}
+            <button
+              onClick={() => setOrder(null)}
+              className="mt-6 text-[#F26522] font-semibold hover:underline"
+            >
+              Track Another Order
+            </button>
           </div>
         )}
       </div>

@@ -12,25 +12,32 @@ export async function GET(req) {
       );
     }
 
-    // ✅ Use query string authentication instead of Basic Auth
-    const apiUrl = `${process.env.WC_API_URL}/orders?customer=${customerId}&consumer_key=${process.env.WC_CONSUMER_KEY}&consumer_secret=${process.env.WC_CONSUMER_SECRET}`;
+    const auth = Buffer.from(
+      `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
+    ).toString("base64");
 
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      cache: "no-store",
-    });
+    const response = await fetch(
+      `${process.env.WC_API_URL}/orders?customer=${customerId}&per_page=20`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }
+    );
+
+    const text = await response.text();
 
     if (!response.ok) {
-      const errorText = await response.text();
       return NextResponse.json(
-        { error: errorText },
+        { error: text },
         { status: response.status }
       );
     }
 
-    const data = await response.json();
-
-    return NextResponse.json(data);
+    return NextResponse.json(JSON.parse(text));
 
   } catch (error) {
     return NextResponse.json(

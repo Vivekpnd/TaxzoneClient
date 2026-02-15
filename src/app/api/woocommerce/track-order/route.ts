@@ -1,37 +1,65 @@
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const { orderId, email } = await req.json();
+export async function POST(req) {
+  try {
+    const { orderId, email } = await req.json();
 
-  const auth = Buffer.from(
-    `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
-  ).toString("base64");
-
-  const res = await fetch(
-    `${process.env.WC_API_URL}/orders/${orderId}`,
-    {
-      headers: {
-        Authorization: `Basic ${auth}`,
-      },
+    if (!orderId || !email) {
+      return NextResponse.json(
+        { success: false, message: "Order ID and Email are required" },
+        { status: 400 }
+      );
     }
-  );
 
-  if (!res.ok) {
+    const cleanOrderId = orderId.toString().replace("#", "");
+
+    const wooResponse = await fetch(
+      `${process.env.WC_API_URL}/orders/${cleanOrderId}`,
+      {
+        headers: {
+          Authorization:
+            "Basic " +
+            Buffer.from(
+              `${process.env.WC_CONSUMER_KEY}:${process.env.WC_CONSUMER_SECRET}`
+            ).toString("base64"),
+        },
+      }
+    );
+
+    if (!wooResponse.ok) {
+      return NextResponse.json(
+        { success: false, message: "Order not found" },
+        { status: 404 }
+      );
+    }
+
+    const order = await wooResponse.json();
+
+    if (order.billing.email.toLowerCase() !== email.toLowerCase()) {
+      return NextResponse.json(
+        { success: false, message: "Email does not match this order" },
+        { status: 403 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      order: {
+        id: order.id,
+        status: order.status,
+        total: order.total,
+        currency: order.currency,
+        date_created: order.date_created,
+        billing: order.billing,
+        line_items: order.line_items,
+      },
+    });
+
+  } catch (error) {
+    console.error("Track Order Error:", error);
     return NextResponse.json(
-      { error: "Invalid order details" },
-      { status: 400 }
+      { success: false, message: "Server error" },
+      { status: 500 }
     );
   }
-
-  const order = await res.json();
-
-  // Verify email matches billing email
-  if (order.billing.email.toLowerCase() !== email.toLowerCase()) {
-    return NextResponse.json(
-      { error: "Invalid order details" },
-      { status: 400 }
-    );
-  }
-
-  return NextResponse.json(order);
 }

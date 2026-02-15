@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCartStore } from "../../../cart/page";
+import { useCartStore } from "../../../../store/cartStore";
 import { useState } from "react";
 
 export default function ProductCard({ product }) {
@@ -28,13 +28,14 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="bg-white rounded-xl border hover:shadow-lg transition flex flex-col">
-      <Link href={`/shop/${product.slug}`}>
+      <Link href={`/product/${product.slug}`}>
         <div className="relative w-full h-56 bg-gray-100 rounded-t-xl overflow-hidden">
           <Image
             src={image}
             alt={product.name}
             fill
-            className="object-cover"
+            sizes="(max-width:768px) 50vw, 25vw"
+            className="object-cover hover:scale-105 transition-transform duration-500"
           />
         </div>
       </Link>
@@ -56,7 +57,7 @@ export default function ProductCard({ product }) {
         <button
           onClick={handleAdd}
           disabled={loading}
-          className={`mt-auto py-2 rounded-lg text-white font-medium ${
+          className={`mt-auto py-2 rounded-lg text-white font-medium transition ${
             loading
               ? "bg-gray-400"
               : "bg-black hover:bg-gray-800"

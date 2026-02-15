@@ -1,7 +1,44 @@
 import HeroBanner from "../../../components/HeroBanner";
 import ProductGrid from "../component/products/ProductGrid";
 import { Flame, Sparkles, TrendingUp, Star } from "lucide-react";
+import CommonBanner from "../../comonBanner/CommonBanner";
 import Link from "next/link";
+import { Suspense } from "react";
+
+/* Skeleton Component */
+function ProductGridSkeleton() {
+  return (
+    <div
+      className="
+        no-scrollbar
+        flex gap-4 overflow-x-auto px-4 pb-4
+        md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-6 md:overflow-visible md:px-0
+      "
+    >
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="
+            min-w-[70%] sm:min-w-[45%] md:min-w-0
+            bg-white border border-gray-100 rounded-xl
+            flex flex-col animate-pulse
+          "
+        >
+          <div className="w-full aspect-square bg-gray-200 rounded-t-xl" />
+          <div className="p-4 space-y-3">
+            <div className="h-4 bg-gray-200 rounded w-3/4" />
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+            <div className="h-3 bg-gray-200 rounded w-full" />
+            <div className="h-3 bg-gray-200 rounded w-5/6" />
+          </div>
+          <div className="px-4 pb-4">
+            <div className="h-9 bg-gray-200 rounded-md" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -18,8 +55,12 @@ export default function HomePage() {
           title="Best Sellers"
           subtitle="Most loved products by our customers"
         />
-        <ProductGrid title="Best Sellers" slug="best-seller" />
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <ProductGrid title="Best Sellers" slug="best-seller" />
+        </Suspense>
       </section>
+
+      <CommonBanner />
 
       {/* NEW LAUNCH */}
       <section className="px-4 md:px-8 lg:px-12">
@@ -29,8 +70,12 @@ export default function HomePage() {
           title="New Launch"
           subtitle="Fresh arrivals just for you"
         />
-        <ProductGrid title="New Launch" slug="new-launch" />
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <ProductGrid title="New Launch" slug="new-launch" />
+        </Suspense>
       </section>
+
+      <CommonBanner />
 
       {/* TRENDING */}
       <section className="px-4 md:px-8 lg:px-12">
@@ -40,8 +85,12 @@ export default function HomePage() {
           title="Trending Now"
           subtitle="What everyone is buying right now"
         />
-        <ProductGrid title="Trending Now" slug="trending-now" />
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <ProductGrid title="Trending Now" slug="trending-now" />
+        </Suspense>
       </section>
+
+      <CommonBanner />
 
       {/* RECOMMENDED */}
       <section className="px-4 md:px-8 lg:px-12">
@@ -51,7 +100,9 @@ export default function HomePage() {
           title="Recommended For You"
           subtitle="Handpicked based on popularity"
         />
-        <ProductGrid title="Recommended For You" slug="recommended" />
+        <Suspense fallback={<ProductGridSkeleton />}>
+          <ProductGrid title="Recommended For You" slug="recommended" />
+        </Suspense>
       </section>
 
     </main>
@@ -66,24 +117,20 @@ function SectionHeader({ icon, title, subtitle, slug }) {
   return (
     <div className="mb-8 md:mb-10">
 
-      {/* Top Row */}
       <div className="flex items-center justify-between mb-3">
 
         <div className="flex items-center gap-3">
 
-          {/* Minimal Brand Icon */}
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-orange-50 text-orange-600">
             {icon}
           </div>
 
-          {/* Title */}
           <h2 className="text-lg md:text-xl lg:text-2xl font-semibold tracking-tight text-gray-900">
             {title}
           </h2>
 
         </div>
 
-        {/* View All Link */}
         <Link
           href={`/category/${slug}`}
           className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors duration-200"
@@ -93,7 +140,6 @@ function SectionHeader({ icon, title, subtitle, slug }) {
 
       </div>
 
-      {/* Subtitle + Divider */}
       <div className="flex items-center gap-4">
 
         <p className="text-sm text-gray-500 max-w-md leading-relaxed">
