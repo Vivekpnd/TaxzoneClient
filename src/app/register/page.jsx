@@ -111,7 +111,7 @@ export default function RegisterPage() {
       /* =========================
          STEP 5: REDIRECT
       ========================= */
-      router.push("/Account");
+      router.push("/account");
 
     } catch (err) {
       setError(err.message || "Something went wrong.");

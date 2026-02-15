@@ -32,12 +32,12 @@ export default function TopBar() {
 
           {/* Email */}
           <a
-            href="mailto:info@taxzone.com"
+            href="mailto:ssenterpiseswebsite1@gmail.com"
             className="hidden md:flex items-center gap-2 hover:text-red-600 transition-colors duration-200"
           >
             <Mail size={14} />
             <span className="font-medium">
-              info@taxzone.com
+              ssenterpiseswebsite1@gmail.com
             </span>
           </a>
 
@@ -48,7 +48,7 @@ export default function TopBar() {
 
           {/* Desktop My Account */}
           <Link
-            href={loggedIn ? "/Account" : "/login"}
+            href={loggedIn ? "/account" : "/login"}
             className="hidden md:flex items-center gap-2 hover:text-red-600 transition-colors duration-200"
           >
             <User size={14} />
@@ -70,7 +70,7 @@ export default function TopBar() {
 
           {/* MOBILE ICONS */}
           <Link
-            href={loggedIn ? "/my-account" : "/login"}
+            href={loggedIn ? "/account" : "/login"}
             className="md:hidden hover:text-red-600 transition-colors duration-200"
           >
             <User size={18} />

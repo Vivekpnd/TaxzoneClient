@@ -19,17 +19,19 @@ export default function MainHeader() {
   const count = items.reduce((t, i) => t + i.qty, 0);
   const total = items.reduce((t, i) => t + i.qty * i.price, 0);
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    setLoggedIn(!!token);
+ useEffect(() => {
+  const token = localStorage.getItem("token"); 
+  setLoggedIn(!!token);
 
-    const handleScroll = () => {
-      setIsSticky(window.scrollY > 120);
-    };
+  const handleScroll = () => {
+    setIsSticky(window.scrollY > 120);
+  };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
+  
 
   const navLinks = [
     { name: "Home", href: "/" },

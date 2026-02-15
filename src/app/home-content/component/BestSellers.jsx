@@ -6,7 +6,32 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 /* Skeleton Component */
+const banners = [
+  {
+    imageUrl: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/Gemini_Generated_Image_4c14s14c14s14c14.png",
+    title: "Premium Suzuki Car Covers",
+    subtitle: "Custom-fit protection for Alto, Swift, Cultus & more",
+    ctaText: "Shop Suzuki Covers",
+    ctaLink: "/category/suzuki-car-covers",
+  },
+  {
+    imageUrl: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/Gemini_Generated_Image_ufkpi7ufkpi7ufkp.png",
+    title: "Toyota Car Covers Collection",
+    subtitle: "Weatherproof & scratch-resistant covers for Corolla, Yaris, Prado",
+    ctaText: "Explore Toyota Covers",
+    ctaLink: "/category/toyota-car-covers",
+  },
+  {
+    imageUrl: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/ChatGPT-Image-Feb-15-2026-04_00_04-PM.png",
+    title: "Honda Car Covers – Perfect Fit",
+    subtitle: "Premium indoor & outdoor covers for Civic, City, BR-V",
+    ctaText: "View Honda Covers",
+    ctaLink: "/category/honda-car-covers",
+  },
+];
+
 function ProductGridSkeleton() {
+
   return (
     <div
       className="
@@ -60,7 +85,8 @@ export default function HomePage() {
         </Suspense>
       </section>
 
-      <CommonBanner />
+      <CommonBanner {...banners[0]} />
+
 
       {/* NEW LAUNCH */}
       <section className="px-4 md:px-8 lg:px-12">
@@ -75,7 +101,8 @@ export default function HomePage() {
         </Suspense>
       </section>
 
-      <CommonBanner />
+      <CommonBanner {...banners[1]} />
+
 
       {/* TRENDING */}
       <section className="px-4 md:px-8 lg:px-12">
@@ -90,7 +117,8 @@ export default function HomePage() {
         </Suspense>
       </section>
 
-      <CommonBanner />
+      <CommonBanner {...banners[2]} />
+
 
       {/* RECOMMENDED */}
       <section className="px-4 md:px-8 lg:px-12">
