@@ -132,12 +132,12 @@ export default function Footer() {
           <div className="space-y-3 text-sm text-gray-500">
             <div className="flex items-center gap-3">
               <FiPhone className="text-red-500" size={16} />
-              <span>+1 800 123 4567</span>
+              <span>+91 87007 78622</span>
             </div>
 
             <div className="flex items-center gap-3">
               <FiMail className="text-red-500" size={16} />
-              <span>info@taxzone.store</span>
+              <span>ssenterpiseswebsite1@gmail.com</span>
             </div>
           </div>
         </div>

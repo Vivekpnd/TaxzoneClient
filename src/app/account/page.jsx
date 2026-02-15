@@ -181,7 +181,7 @@ export default function AccountPage() {
                         </span>
 
                         <Link
-                          href={`/order/${order.id}`}
+                          href={`/track-order`}
                           className="bg-black text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition"
                         >
                           Track

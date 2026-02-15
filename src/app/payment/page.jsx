@@ -36,6 +36,15 @@ export default function PaymentPage() {
     setCustomer(JSON.parse(saved));
   }, [router]);
 
+  // ✅ Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => document.body.removeChild(script);
+  }, []);
+
   // ✅ If cart empty
   if (!items || items.length === 0) {
     return (
@@ -52,82 +61,152 @@ export default function PaymentPage() {
   );
 
   // ✅ PLACE COD ORDER
-async function placeCODOrder() {
-  setLoading(true);
+  async function placeCODOrder() {
+    setLoading(true);
 
-  const user = getUser();
-  const token = getToken();
+    const user = getUser();
+    const token = getToken();
 
-  if (!user || !token) {
-    alert("Please login first");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/woocommerce/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token,
-        customer_id: user.id, // ✅ CORRECT FIX
-
-        cartItems: items.map((item) => ({
-          id: item.id,
-          quantity: item.qty || item.quantity,
-        })),
-
-        billing: {
-          first_name: customer.first_name,
-          last_name: customer.last_name,
-          email: customer.email,
-          phone: customer.phone,
-          address_1: customer.address,
-          city: customer.city,
-          state: customer.state,
-          postcode: customer.pincode,
-          country: "IN",
-        },
-
-        payment_method: "cod",
-        payment_method_title: "Cash on Delivery",
-        set_paid: false,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.message || "Order failed");
+    if (!user || !token) {
+      alert("Please login first");
       setLoading(false);
       return;
     }
 
-    clearCart();
-    router.push("/Account");
+    try {
+      const res = await fetch("/api/woocommerce/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          customer_id: user.id,
+          cartItems: items.map((item) => ({
+            id: item.id,
+            quantity: item.qty || item.quantity,
+          })),
+          billing: {
+            first_name: customer.first_name,
+            last_name: customer.last_name,
+            email: customer.email,
+            phone: customer.phone,
+            address_1: customer.address,
+            city: customer.city,
+            state: customer.state,
+            postcode: customer.pincode,
+            country: "IN",
+          },
+          payment_method: "cod",
+          payment_method_title: "Cash on Delivery",
+          set_paid: false,
+        }),
+      });
 
-  } catch (err) {
-    alert("Something went wrong");
-  } finally {
-    setLoading(false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Order failed");
+        setLoading(false);
+        return;
+      }
+
+      clearCart();
+      router.push("/Account");
+    } catch (err) {
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
+  // ✅ PLACE RAZORPAY ORDER
+  async function handleRazorpay() {
+    if (!customer) return alert("Customer info missing");
+    setLoading(true);
 
-  function handleRazorpay() {
-    alert("Razorpay integration coming soon.");
+    try {
+      // 1️⃣ Create Razorpay order on backend
+      const res = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total }),
+      });
+
+      const { order, error } = await res.json();
+      if (error) throw new Error(error);
+
+      // 2️⃣ Open Razorpay checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Your Store Name",
+        description: "Purchase Order",
+        order_id: order.id,
+        prefill: {
+          name: `${customer.first_name} ${customer.last_name}`,
+          email: customer.email,
+          contact: customer.phone,
+        },
+        theme: { color: "#000000" },
+        handler: async function (response) {
+          // 3️⃣ On successful payment, create WooCommerce order in headless WP
+          try {
+            const wcRes = await fetch("/api/woocommerce/checkout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                token: getToken(),
+                customer_id: getUser().id,
+                cartItems: items.map((item) => ({
+                  id: item.id,
+                  quantity: item.qty || item.quantity,
+                })),
+                billing: {
+                  first_name: customer.first_name,
+                  last_name: customer.last_name,
+                  email: customer.email,
+                  phone: customer.phone,
+                  address_1: customer.address,
+                  city: customer.city,
+                  state: customer.state,
+                  postcode: customer.pincode,
+                  country: "IN",
+                },
+                payment_method: "razorpay",
+                payment_method_title: "Razorpay",
+                set_paid: true,
+                razorpay_payment_id: response.razorpay_payment_id,
+              }),
+            });
+
+            const data = await wcRes.json();
+            if (!wcRes.ok) throw new Error(data.message || "Order creation failed");
+
+            clearCart();
+            router.push("/Account");
+          } catch (err) {
+            alert(err.message || "Order failed after payment");
+          }
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      alert(err.message || "Payment failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="bg-gray-50 min-h-screen py-10 px-4">
       <div className="max-w-6xl mx-auto">
-
         {/* PROGRESS BAR */}
         <div className="mb-14">
           <div className="relative flex items-center justify-between">
-
             <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-200 -translate-y-1/2"></div>
             <div className="absolute top-1/2 left-0 w-2/3 h-[2px] bg-black -translate-y-1/2"></div>
 
@@ -149,44 +228,30 @@ async function placeCODOrder() {
               <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center ring-4 ring-gray-200">
                 <FaWallet />
               </div>
-              <span className="text-xs mt-2 font-semibold text-black">
-                Payment
-              </span>
+              <span className="text-xs mt-2 font-semibold text-black">Payment</span>
             </div>
-
           </div>
         </div>
 
         {/* MAIN CONTENT */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-
           {/* LEFT */}
           <div className="lg:col-span-2 space-y-8">
-
-            <h1 className="text-3xl font-bold">
-              Secure Payment
-            </h1>
+            <h1 className="text-3xl font-bold">Secure Payment</h1>
 
             <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-
               {/* COD */}
               <div
                 onClick={() => setPaymentMethod("cod")}
                 className={`flex items-center justify-between p-6 cursor-pointer transition ${
-                  paymentMethod === "cod"
-                    ? "bg-black text-white"
-                    : "hover:bg-gray-50"
+                  paymentMethod === "cod" ? "bg-black text-white" : "hover:bg-gray-50"
                 }`}
               >
                 <div className="flex items-center gap-4">
                   <FaMoneyBillWave />
                   <div>
-                    <h3 className="font-semibold">
-                      Cash on Delivery
-                    </h3>
-                    <p className="text-sm opacity-70">
-                      Pay when delivered
-                    </p>
+                    <h3 className="font-semibold">Cash on Delivery</h3>
+                    <p className="text-sm opacity-70">Pay when delivered</p>
                   </div>
                 </div>
                 {paymentMethod === "cod" && <FaCheckCircle />}
@@ -196,20 +261,14 @@ async function placeCODOrder() {
               <div
                 onClick={() => setPaymentMethod("razorpay")}
                 className={`flex items-center justify-between p-6 cursor-pointer border-t transition ${
-                  paymentMethod === "razorpay"
-                    ? "bg-black text-white"
-                    : "hover:bg-gray-50"
+                  paymentMethod === "razorpay" ? "bg-black text-white" : "hover:bg-gray-50"
                 }`}
               >
                 <div className="flex items-center gap-4">
                   <SiRazorpay />
                   <div>
-                    <h3 className="font-semibold">
-                      Razorpay
-                    </h3>
-                    <p className="text-sm opacity-70">
-                      UPI, Card, Net Banking
-                    </p>
+                    <h3 className="font-semibold">Razorpay</h3>
+                    <p className="text-sm opacity-70">UPI, Card, Net Banking</p>
                   </div>
                 </div>
                 {paymentMethod === "razorpay" && <FaCheckCircle />}
@@ -224,9 +283,7 @@ async function placeCODOrder() {
 
           {/* RIGHT */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border h-fit">
-            <h2 className="text-xl font-bold mb-6">
-              Order Summary
-            </h2>
+            <h2 className="text-xl font-bold mb-6">Order Summary</h2>
 
             {items.map((item) => (
               <div key={item.id} className="flex justify-between mb-3 text-sm">
@@ -234,11 +291,7 @@ async function placeCODOrder() {
                   {item.name} × {item.qty || item.quantity}
                 </span>
                 <span>
-                  ₹
-                  {(
-                    Number(item.price) *
-                    Number(item.qty || item.quantity)
-                  ).toFixed(2)}
+                  ₹{(Number(item.price) * Number(item.qty || item.quantity)).toFixed(2)}
                 </span>
               </div>
             ))}
@@ -249,11 +302,7 @@ async function placeCODOrder() {
             </div>
 
             <button
-              onClick={
-                paymentMethod === "cod"
-                  ? placeCODOrder
-                  : handleRazorpay
-              }
+              onClick={paymentMethod === "cod" ? placeCODOrder : handleRazorpay}
               disabled={loading}
               className="mt-8 w-full bg-black text-white py-4 rounded-xl hover:bg-gray-900 transition disabled:opacity-50"
             >
@@ -264,7 +313,6 @@ async function placeCODOrder() {
                 : "Pay Securely"}
             </button>
           </div>
-
         </div>
       </div>
     </div>

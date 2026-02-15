@@ -9,26 +9,27 @@ import { Suspense } from "react";
 const banners = [
   {
     imageUrl: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/Gemini_Generated_Image_4c14s14c14s14c14.png",
-    title: "Premium Suzuki Car Covers",
-    subtitle: "Custom-fit protection for Alto, Swift, Cultus & more",
-    ctaText: "Shop Suzuki Covers",
-    ctaLink: "/category/suzuki-car-covers",
+    title: "Maruti Car Covers Collection",
+    subtitle: "Custom-fit protection for Ertiga, Brezza, Ritz, S-Cross & Baleno",
+    ctaText: "Shop Maruti Covers",
+    ctaLink: "/category/maruti", // matches CSV category
   },
   {
     imageUrl: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/Gemini_Generated_Image_ufkpi7ufkpi7ufkp.png",
-    title: "Toyota Car Covers Collection",
-    subtitle: "Weatherproof & scratch-resistant covers for Corolla, Yaris, Prado",
-    ctaText: "Explore Toyota Covers",
-    ctaLink: "/category/toyota-car-covers",
+    title: "Hyundai Car Covers Collection",
+    subtitle: "Weatherproof covers for i20, Creta & more",
+    ctaText: "Shop Hyundai Covers",
+    ctaLink: "/category/hyundai", // matches CSV category
   },
   {
     imageUrl: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/ChatGPT-Image-Feb-15-2026-04_00_04-PM.png",
-    title: "Honda Car Covers – Perfect Fit",
-    subtitle: "Premium indoor & outdoor covers for Civic, City, BR-V",
-    ctaText: "View Honda Covers",
-    ctaLink: "/category/honda-car-covers",
+    title: "Tata, Honda & Others",
+    subtitle: "Covers for City, Nexon, Punch, XUV300 & Volkswagen Polo",
+    ctaText: "Shop Other Brands",
+    ctaLink: "/category/others", // could be a merged category for Tata/Honda/TVS/Mahindra/Volkswagen
   },
 ];
+
 
 function ProductGridSkeleton() {
 

@@ -21,12 +21,12 @@ export default function TopBar() {
 
           {/* Phone */}
           <a
-            href="tel:+18001234567"
+            href="tel:+91 87007 78622"
             className="flex items-center gap-2 hover:text-red-600 transition-colors duration-200"
           >
             <Phone size={14} />
             <span className="hidden sm:inline font-medium">
-              +1 800 123 4567
+              +91 87007 78622
             </span>
           </a>
 
