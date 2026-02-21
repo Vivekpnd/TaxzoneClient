@@ -1,5 +1,8 @@
+
 import ProductCard from "../home-content/component/products/ProductCard";
 import InfiniteProductGrid from "./components/InfiniteProductGrid";
+import AboutSection from "../../components/AboutSection";
+import ProductCard from "../home-content/component/products/ProductCard";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -32,7 +35,10 @@ async function getProducts({ page = 1, category = null }) {
       totalPages,
       totalProducts,
     };
-  } catch {
+
+  } catch (error) {
+    console.error(error);
+
     return { products: [], totalPages: 1, totalProducts: 0 };
   }
 }

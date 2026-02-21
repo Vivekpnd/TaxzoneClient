@@ -66,7 +66,6 @@ export const metadata = {
       "Waterproof, dustproof and heavy-duty car covers for all vehicles across India.",
     images: ["https://www.taxzone.store/og-image.jpg"],
   },
-
   robots: {
     index: true,
     follow: true,
