@@ -1,163 +1,182 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import { Truck, ShieldCheck, Users, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { useRef, useEffect, useState } from "react";
+import {
+  FaFire,
+  FaTint,
+  FaSun,
+  FaGem,
+  FaTruck,
+  FaUsers,
+  FaLock,
+  FaHeadset,
+} from "react-icons/fa";
 
-/* ================= COUNTER COMPONENT ================= */
+/* ================= CARD ================= */
 
-function AnimatedCounter({ target, suffix = "", duration = 2000 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-
-    let start = 0;
-    const increment = target / (duration / 36);
-    let animationFrame;
-
-    const updateCounter = () => {
-      start += increment;
-
-      if (start < target) {
-        setCount(Math.floor(start));
-        animationFrame = requestAnimationFrame(updateCounter);
-      } else {
-        setCount(target);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(updateCounter);
-
-    return () => cancelAnimationFrame(animationFrame);
-  }, [isInView, target, duration]);
+function ZigZagCard({ Icon, title, description, index }) {
+  const isTop = index % 2 === 0;
 
   return (
-    <span ref={ref}>
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
-
-/* ================= STAT CARD ================= */
-
-function StatCard({ icon, target, suffix, label }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6 }}
-      className="group bg-white border border-gray-200 
-                 rounded-2xl p-6 md:p-8 text-center 
-                 transition-all duration-300
-                 hover:border-orange-500 
-                 hover:shadow-xl hover:shadow-orange-100"
+    <div
+      className={`
+        relative flex-shrink-0
+        w-full sm:w-[320px] lg:w-[340px]
+        flex flex-col items-center
+        lg:${isTop ? "-translate-y-16" : "translate-y-16"}
+        transition-transform duration-500
+      `}
     >
-      <div className="flex justify-center mb-4 text-orange-500 group-hover:scale-110 transition">
-        {icon}
+      {/* Desktop Connector Node */}
+      <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-purple-500 border-4 border-white shadow-md z-10" />
+
+      <div className="mt-10 lg:mt-16 bg-white rounded-2xl shadow-xl p-6 text-center hover:-translate-y-2 transition-all duration-300">
+        <div className="flex justify-center mb-3 text-purple-500">
+          <Icon className="text-4xl lg:text-5xl" />
+        </div>
+
+        <h3 className="text-lg font-semibold mb-2">{title}</h3>
+
+        <p className="text-sm text-gray-500">{description}</p>
       </div>
-
-      <h3 className="text-2xl md:text-3xl font-bold text-[#4B4B4B]">
-        <AnimatedCounter target={target} suffix={suffix} />
-      </h3>
-
-      <p className="text-gray-500 mt-2 text-sm md:text-base">
-        {label}
-      </p>
-    </motion.div>
+    </div>
   );
 }
 
 /* ================= MAIN SECTION ================= */
 
-export default function AboutSection() {
+export default function ZigZagSection() {
+  const sectionRef = useRef(null);
+  const containerRef = useRef(null);
+  const [scrollWidth, setScrollWidth] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  /* Detect screen size */
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
+  /* Calculate horizontal width (Desktop only) */
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const updateWidth = () => {
+      if (!containerRef.current) return;
+
+      const total =
+        containerRef.current.scrollWidth - window.innerWidth;
+
+      setScrollWidth(total > 0 ? total : 0);
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, [isDesktop]);
+
+  /* Horizontal Scroll Animation */
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const handleScroll = () => {
+      if (!sectionRef.current || !containerRef.current) return;
+
+      const sectionTop = sectionRef.current.offsetTop;
+      const scrollY = window.scrollY;
+      const offset = scrollY - sectionTop;
+
+      if (offset >= 0 && offset <= scrollWidth) {
+        containerRef.current.style.transform =
+          `translateX(-${offset}px)`;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [scrollWidth, isDesktop]);
+
+  const cards = [
+    { title: "Heat Resistant", Icon: FaFire },
+    { title: "Waterproof Layer", Icon: FaTint },
+    { title: "UV Protection", Icon: FaSun },
+    { title: "Premium Fabric", Icon: FaGem },
+    { title: "Fast Delivery", Icon: FaTruck },
+    { title: "Trusted by 5000+", Icon: FaUsers },
+    { title: "Secure Payments", Icon: FaLock },
+    { title: "Customer Support", Icon: FaHeadset },
+  ];
+
   return (
-    <section className="relative bg-white text-[#4B4B4B] py-20 md:py-28 px-5 md:px-10">
+    <section
+      ref={sectionRef}
+      style={{
+        height: isDesktop
+          ? scrollWidth + window.innerHeight
+          : "auto",
+      }}
+      className="relative bg-gray-50 max-w-[1440px] mx-auto py-16"
+    >
+      {/* ================= HEADING ================= */}
+      <div className="text-center mb-12 px-4">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+          Why Choose Us
+        </h2>
+        <p className="mt-3 text-gray-500 text-sm sm:text-base">
+          Built for durability, designed for performance.
+        </p>
+      </div>
 
-      <div className="max-w-7xl mx-auto">
+      {/* ================= ANIMATION AREA ================= */}
 
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto"
+      <div
+        className={` max-[768px]:pb-[20px]
+          ${isDesktop ? "sticky top-0 h-screen" : ""}
+          flex items-center
+          overflow-hidden
+        `}
+      >
+        {/* Desktop Connector Line */}
+        {isDesktop && (
+          <svg
+            className="absolute w-full h-full pointer-events-none hidden lg:block"
+            viewBox="0 0 2000 600"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0 300 Q250 100 500 300 T1000 300 T1500 300 T2000 300"
+              fill="none"
+              stroke="#8b5cf6"
+              strokeWidth="3"
+              strokeDasharray="12 8"
+            />
+          </svg>
+        )}
+
+        <div
+          ref={containerRef}
+          className={`
+            flex 
+            ${isDesktop ? "flex-row gap-32 px-[40vw]" : "flex-col gap-10 px-6"}
+            items-center
+            transition-transform duration-75 ease-linear  !pb-[20px]
+          `}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
-            <span className="text-gray-500">About</span>{" "}
-            <span className="text-orange-500">TaxZone</span>
-          </h2>
-
-          <div className="mt-4 w-20 md:w-28 h-1 bg-orange-500 mx-auto rounded-full" />
-
-          <p className="mt-6 text-gray-600 text-base md:text-lg leading-relaxed">
-            TaxZone is your trusted destination for premium automotive and
-            lifestyle essentials delivered straight to your doorstep.
-            We focus on speed, transparency, and secure shopping to give
-            you a seamless online experience.
-          </p>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-
-          <StatCard
-            icon={<Truck size={28} />}
-            target={10000}
-            suffix="+"
-            label="Orders Delivered"
-          />
-
-          <StatCard
-            icon={<Users size={28} />}
-            target={5000}
-            suffix="+"
-            label="Happy Customers"
-          />
-
-          <StatCard
-            icon={<ShieldCheck size={28} />}
-            target={100}
-            suffix="%"
-            label="Secure Payments"
-          />
-
-          <StatCard
-            icon={<Sparkles size={28} />}
-            target={100}
-            suffix="%"
-            label="Quality Assured"
-          />
-
+          {cards.map((card, i) => (
+            <ZigZagCard
+              key={i}
+              index={i}
+              title={card.title}
+              description="Premium protection engineered for extreme conditions."
+              Icon={card.Icon}
+            />
+          ))}
         </div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center mt-16"
-        >
-          <Link href="/shop">
-            <button
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold
-                         px-6 md:px-8 py-3 rounded-xl 
-                         transition-all duration-300
-                         shadow-md hover:shadow-lg
-                         hover:scale-105"
-            >
-              Explore Products
-            </button>
-          </Link>
-        </motion.div>
-
       </div>
     </section>
   );

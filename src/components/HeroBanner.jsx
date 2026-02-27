@@ -42,11 +42,17 @@ const brands = [
   { name: "MG", image: "https://backend.taxzone.store/wp/wp-content/uploads/2026/02/mg-car-removebg-preview.png", href: "/category/mg" },
 ];
 
+
+
 export default function HeroSection() {
   const [current, setCurrent] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
   const [enableTransition, setEnableTransition] = useState(true);
   const intervalRef = useRef(null);
+  const scrollerRef = useRef(null);
+
+
+const duplicatedBrands = [...brands, ...brands];
 
   const extendedSlides = [
     slides[slides.length - 1],
@@ -110,7 +116,7 @@ export default function HeroSection() {
   }, [enableTransition]);
 
   return (
-    <section className="w-full bg-[#f1f3f6] py-8">
+    <section className="w-full  py-8 pb-0">
       <div className="max-w-7xl mx-auto px-4">
 
         {/* HERO */}
@@ -120,11 +126,10 @@ export default function HeroSection() {
           onMouseLeave={startAuto}
         >
           <div
-            className={`flex ${
-              enableTransition
+            className={`flex ${enableTransition
                 ? "transition-transform duration-700 ease-in-out"
                 : ""
-            }`}
+              }`}
             style={{
               transform: `translateX(-${current * (isMobile ? 100 : 80)}%)`,
             }}
@@ -185,43 +190,69 @@ export default function HeroSection() {
               <button
                 key={index}
                 onClick={() => setCurrent(index + 1)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  current === index + 1
+                className={`h-2 rounded-full transition-all duration-300 ${current === index + 1
                     ? "w-8 bg-orange-600"
                     : "w-2 bg-gray-400"
-                }`}
+                  }`}
               />
             ))}
           </div>
         </div>
 
         {/* CATEGORY SECTION */}
-        <div className="mt-12 bg-white rounded-3xl shadow-md p-6 md:p-8">
-          <h3 className="text-lg md:text-xl font-semibold mb-8 text-center">
+        <section className="relative py-8  overflow-hidden bg-transparent rounded-[32px] overflow-hidden">
+
+          <h3 className="text-xl md:text-2xl font-semibold text-center mb-12">
             Shop By Car Brand
           </h3>
 
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6">
-            {brands.map((brand, index) => (
-              <Link
-                key={index}
-                href={brand.href}
-                className="flex flex-col items-center group"
-              >
-                <div className="bg-gray-50 p-4 rounded-2xl hover:shadow-md transition duration-300 w-full flex justify-center">
-                  <img
-                    src={brand.image}
-                    alt={brand.name}
-                    className="h-8 md:h-10 object-contain group-hover:scale-110 transition"
-                  />
-                </div>
-                <span className="text-xs mt-2 text-gray-600 group-hover:text-black">
-                  {brand.name}
-                </span>
-              </Link>
-            ))}
+         
+
+          {/* Scrolling Track */}
+          <div className="relative w-full overflow-hidden  py-[5px] px-[4px] rounded-[12px]">
+            <div
+              ref={scrollerRef}
+              className="flex gap-10 animate-scroll whitespace-nowrap"
+            >
+              {duplicatedBrands.map((brand, index) => (
+                <Link
+                  key={index}
+                  href={brand.href}
+                  className="flex flex-col items-center group min-w-[100px]"
+                >
+                  {/* Card */}
+                  <div className="bg-[#fdfdfd] backdrop-blur-md p-5 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex justify-center items-center w-24 h-20">
+                    <img
+                      src={brand.image}
+                      alt={brand.name}
+                      className="h-8 object-contain group-hover:scale-110 transition duration-300"
+                    />
+                  </div>
+
+                  <span className="text-xs mt-3 text-gray-600 group-hover:text-black transition">
+                    {brand.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+
+          {/* Animation CSS */}
+          <style jsx>{`
+        .animate-scroll {
+          animation: scroll 25s linear infinite;
+        }
+
+        @keyframes scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
+        </section>
 
       </div>
     </section>

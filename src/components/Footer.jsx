@@ -11,26 +11,26 @@ import { FiPhone, FiMail } from "react-icons/fi";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0c0c0c] text-gray-400 border-t border-neutral-800">
+    <footer className="bg-[#0a0a0a] text-gray-400 border-t border-neutral-800/70 rounded-[32px]">
 
       {/* MAIN SECTION */}
-      <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-14">
 
         {/* BRAND COLUMN */}
         <div className="space-y-6">
           <img
             src="https://backend.taxzone.store/wp/wp-content/uploads/2026/02/cropped-WhatsApp-Image-2026-01-28-at-22.09.44-removebg-preview.png"
             alt="TaxZone"
-            className="h-16 w-auto"
+            className="h-14 w-auto"
           />
 
-          <p className="text-sm leading-relaxed text-gray-500">
+          <p className="text-sm leading-relaxed text-gray-500 max-w-xs">
             Premium products. Trusted service. Fast delivery.
             Built for a modern shopping experience.
           </p>
 
           {/* SOCIAL ICONS */}
-          <div className="flex gap-4 pt-2">
+          <div className="flex gap-3 pt-3">
             {[
               { Icon: FaFacebookF },
               { Icon: FaInstagram },
@@ -40,11 +40,11 @@ export default function Footer() {
               <a
                 key={i}
                 href="#"
-                className="group w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-700 hover:border-red-500 transition-all duration-300"
+                className="group w-10 h-10 flex items-center justify-center rounded-full bg-neutral-900 border border-neutral-700 hover:border-red-500 hover:bg-neutral-800 transition-all duration-300"
               >
                 <Icon
-                  size={15}
-                  className="text-gray-400 group-hover:text-red-500 transition-all duration-300"
+                  size={14}
+                  className="text-gray-400 group-hover:text-red-500 transition-colors duration-300"
                 />
               </a>
             ))}
@@ -53,7 +53,7 @@ export default function Footer() {
 
         {/* CATEGORIES */}
         <div>
-          <h4 className="text-white font-semibold text-lg mb-6 tracking-wide">
+          <h4 className="text-white font-semibold text-base mb-6 tracking-wide uppercase">
             Categories
           </h4>
 
@@ -68,7 +68,7 @@ export default function Footer() {
               <li key={item}>
                 <Link
                   href="/shop"
-                  className="block hover:text-white transition-all duration-300 hover:translate-x-1"
+                  className="block text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-1"
                 >
                   {item}
                 </Link>
@@ -79,7 +79,7 @@ export default function Footer() {
 
         {/* QUICK LINKS */}
         <div>
-          <h4 className="text-white font-semibold text-lg mb-6 tracking-wide">
+          <h4 className="text-white font-semibold text-base mb-6 tracking-wide uppercase">
             Quick Links
           </h4>
 
@@ -94,7 +94,7 @@ export default function Footer() {
               <li key={item.label}>
                 <Link
                   href={item.href}
-                  className="block hover:text-white transition-all duration-300 hover:translate-x-1"
+                  className="block text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-1"
                 >
                   {item.label}
                 </Link>
@@ -105,11 +105,11 @@ export default function Footer() {
 
         {/* SUPPORT */}
         <div>
-          <h4 className="text-white font-semibold text-lg mb-6 tracking-wide">
+          <h4 className="text-white font-semibold text-base mb-6 tracking-wide uppercase">
             Support
           </h4>
 
-          <ul className="space-y-3 text-sm mb-6">
+          <ul className="space-y-3 text-sm mb-8">
             {[
               "FAQs",
               "Shipping & Returns",
@@ -120,7 +120,7 @@ export default function Footer() {
               <li key={item}>
                 <Link
                   href="/contact"
-                  className="block hover:text-white transition-all duration-300 hover:translate-x-1"
+                  className="block text-gray-400 hover:text-white transition-all duration-300 hover:translate-x-1"
                 >
                   {item}
                 </Link>
@@ -129,7 +129,7 @@ export default function Footer() {
           </ul>
 
           {/* CONTACT */}
-          <div className="space-y-3 text-sm text-gray-500">
+          <div className="space-y-4 text-sm text-gray-500">
             <div className="flex items-center gap-3">
               <FiPhone className="text-red-500" size={16} />
               <span>+91 87007 78622</span>
@@ -144,8 +144,8 @@ export default function Footer() {
       </div>
 
       {/* BOTTOM BAR */}
-      <div className="border-t border-neutral-800">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
+      <div className="border-t border-neutral-800/70">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
 
           <p className="text-center md:text-left">
             © {new Date().getFullYear()}{" "}

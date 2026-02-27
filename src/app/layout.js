@@ -1,30 +1,37 @@
-import { Inter } from "next/font/google";
 import "./globals.css";
-import Footer from "../components/Footer";
+import { Poppins } from "next/font/google";
 import Header from "../components/Header/Header";
+import Footer from "../components/Footer";
 
-const inter = Inter({
-  variable: "--font-inter",
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata = {
   metadataBase: new URL("https://www.taxzone.store"),
 
-  // ✅ Canonical Fix
-  alternates: {
-    canonical: "/",
-  },
-
   title: {
-    default:
-      "Taxzone Car Covers | Waterproof & Heavy Duty Car Covers India",
+    default: "Taxzone Car Covers | Waterproof & Heavy Duty Car Covers India",
     template: "%s | Taxzone Car Covers",
   },
 
   description:
-    "Buy premium waterproof, dustproof and heavy-duty car covers online in India. Protect your car from sun, rain, dust and scratches with Taxzone Car Covers.",
+    "Taxzone Car Covers offers premium waterproof, dustproof and heavy-duty car covers across India. Protect your vehicle from sun, rain, scratches and pollution.",
+
+  keywords: [
+    "Taxzone",
+    "Taxzone Car Covers",
+    "Car Covers India",
+    "Waterproof Car Cover",
+    "Heavy Duty Car Cover",
+    "Dustproof Car Cover",
+  ],
+
+  alternates: {
+    canonical: "/",
+  },
 
   icons: {
     icon: [
@@ -45,10 +52,9 @@ export const metadata = {
     locale: "en_IN",
     url: "https://www.taxzone.store",
     siteName: "Taxzone Car Covers",
-    title:
-      "Premium Waterproof & Heavy Duty Car Covers | Taxzone India",
+    title: "Premium Waterproof & Heavy Duty Car Covers | Taxzone India",
     description:
-      "Shop high-quality waterproof and dustproof car covers for all car models in India. Fast delivery and premium protection.",
+      "Buy premium waterproof and dustproof car covers online in India. Fast delivery. Trusted protection by Taxzone.",
     images: [
       {
         url: "https://www.taxzone.store/og-image.jpg",
@@ -61,17 +67,20 @@ export const metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Buy Premium Car Covers Online | Taxzone India",
+    title: "Taxzone Car Covers | Waterproof & Heavy Duty Protection",
     description:
-      "Waterproof, dustproof and heavy-duty car covers for all vehicles across India.",
+      "Premium waterproof car covers for all vehicles in India. Shop now at Taxzone.",
     images: ["https://www.taxzone.store/og-image.jpg"],
   },
+
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
     },
@@ -81,8 +90,30 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
-        {/* ✅ Proper width container (NOT on body) */}
+      <head>
+        {/* Structured Data for Brand Authority */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Taxzone Car Covers",
+              alternateName: "Taxzone",
+              url: "https://www.taxzone.store",
+              logo: "https://www.taxzone.store/og-image.jpg",
+              description:
+                "Taxzone Car Covers is an Indian brand offering waterproof and heavy-duty car covers for all vehicle types.",
+              sameAs: [
+                "https://www.instagram.com/",
+                "https://www.facebook.com/",
+              ],
+            }),
+          }}
+        />
+      </head>
+
+      <body className={poppins.className}>
         <div className="max-w-[1440px] mx-auto">
           <Header />
           <main className="min-h-screen">{children}</main>

@@ -3,6 +3,8 @@
 import { Phone, Mail, User, Heart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CgProfile } from "react-icons/cg";
+import { IoMdHeartEmpty } from "react-icons/io";
 
 export default function TopBar() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -51,10 +53,7 @@ export default function TopBar() {
             href={loggedIn ? "/account" : "/login"}
             className="hidden md:flex items-center gap-2 hover:text-red-600 transition-colors duration-200"
           >
-            <User size={14} />
-            <span className="font-medium">
-              {loggedIn ? "My Account" : "Sign In"}
-            </span>
+            <CgProfile size={20} />
           </Link>
 
           {/* Desktop Wishlist */}
@@ -62,10 +61,7 @@ export default function TopBar() {
             href="/wishlist"
             className="hidden md:flex items-center gap-2 hover:text-red-600 transition-colors duration-200"
           >
-            <Heart size={14} />
-            <span className="font-medium">
-              Wishlist
-            </span>
+            <IoMdHeartEmpty size={20} />
           </Link>
 
           {/* MOBILE ICONS */}

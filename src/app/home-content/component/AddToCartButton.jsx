@@ -24,7 +24,7 @@ export default function AddToCartButton({ product }) {
     <button
       onClick={handleAdd}
       disabled={loading}
-      className={`w-full py-2 rounded-lg text-white font-medium ${
+      className={`w-[50%] py-2 rounded-lg text-white font-medium ${
         loading
           ? "bg-gray-400"
           : "bg-[#c1420e] hover:bg-[#a73508]"

@@ -20,7 +20,7 @@ export default function CommonBanner({
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover "
+            className="object-none  "
             priority
           />
           {/* Dark overlay for text readability */}
